@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Projects Index</title>
+  <meta name="description" content="A single-page index of project files with simple links." />
+  <style>
+    :root{ --bg:#0b0e14; --panel:#0f131c; --text:#e8eaf0; --muted:#aeb6c2; --link:#7aa2ff; --border:#1b2230 }
+    @media (prefers-color-scheme: light){ :root{ --bg:#f7f8fc; --panel:#ffffff; --text:#0e1320; --muted:#586276; --link:#365cff; --border:#e7eaf2 } }
+    *{ box-sizing:border-box }
+    body{ margin:0; font: 15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif; background:var(--bg); color:var(--text) }
+    .wrap{ max-width:900px; margin:0 auto; padding:24px }
+    header{ margin:6px 0 18px }
+    h1{ margin:0 0 6px; font-size:clamp(22px,4vw,32px); letter-spacing:-.02em }
+    .sub{ color:var(--muted) }
+    .panel{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:18px }
+    .controls{ display:flex; gap:10px; flex-wrap:wrap; margin:0 0 12px }
+    .search{ flex:1 1 260px; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--panel); color:var(--text) }
+    ul{ list-style:none; margin:0; padding:0 }
+    li{ padding:12px 0; border-top:1px solid var(--border); display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center }
+    li:first-child{ border-top:0 }
+    a{ color:var(--link); text-decoration:none }
+    a:hover{ text-decoration:underline }
+    .muted{ color:var(--muted) }
+    .meta{ font-size:12px; color:var(--muted) }
+    .btn{ border:1px solid var(--border); border-radius:10px; padding:6px 10px; text-decoration:none; color:var(--text) }
+    footer{ margin:18px 0 8px; color:var(--muted); font-size:12px; text-align:center }
+    .right{ display:flex; gap:8px; align-items:center }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1 id="name">Michael Kostaras — Projects</h1>
+      <div class="sub">One page. Just links to the files.</div>
+    </header>
+
+    <div class="panel">
+      <div class="controls">
+        <input id="q" class="search" placeholder="Filter by name or note…" aria-label="Filter list" />
+      </div>
+      <ul id="list" aria-live="polite"></ul>
+    </div>
+
+    <footer>Host anywhere. Minimal by design.</footer>
+  </div>
+
+  <script>
+    // ==== CONFIG ====
+    const PROFILE = { name: "Michael Kostaras" };
+
+    const PROJECTS = [
+      { name: "coursework_COMPLETE.asm", file: "https://github.com/michaelkosts/Projects/blob/main/coursework_COMPLETE.asm", note: "Assembly coursework file", date: "2025-11-03" },
+      { name: "extension_COMPLETE.asm", file: "https://github.com/michaelkosts/Projects/blob/main/extension_COMPLETE.asm", note: "Assembly extension file", date: "2025-11-03" }
+    ];
+
+    // ==== RENDER ====
+    document.getElementById('name').textContent = `${PROFILE.name} — Projects`;
+
+    const list = document.getElementById('list');
+    const q = document.getElementById('q');
+
+    function row(item){
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <div>
+          <a href="${item.file}" target="_blank" rel="noopener">${item.name}</a>
+          ${item.note ? `<div class="meta">${item.note}</div>` : ''}
+        </div>
+        <div class="right">
+          ${item.date ? `<span class="meta">${new Date(item.date).toLocaleDateString()}</span>` : ''}
+          <a class="btn" href="${item.file}" target="_blank" rel="noopener" aria-label="Download ${item.name}">Open</a>
+        </div>
+      `;
+      return li;
+    }
+
+    function render(){
+      const term = q.value.trim().toLowerCase();
+      const data = PROJECTS
+        .filter(p => `${p.name} ${p.note||''}`.toLowerCase().includes(term))
+        .sort((a,b)=> new Date(b.date||0) - new Date(a.date||0));
+
+      list.innerHTML = '';
+      data.forEach(p => list.appendChild(row(p)));
+      if (data.length === 0){
+        const li = document.createElement('li');
+        li.innerHTML = '<span class="muted">No matching files.</span>';
+        list.appendChild(li);
+      }
+    }
+
+    q.addEventListener('input', render);
+    render();
+  </script>
+</body>
+</html>
